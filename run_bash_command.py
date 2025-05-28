@@ -38,10 +38,13 @@ def run_bash_command(
             print(f"已切换到目录: {directory}")
         
         # 执行命令
+        if env is None:
+            env = dict()
+            
         result = subprocess.run(
             command,
             shell=shell,
-            env=env or os.environ,
+            env={**env, **os.environ},
             capture_output=True,
             text=True,
             check=raise_on_error

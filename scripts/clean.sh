@@ -1,12 +1,19 @@
 #!/bin/bash
-rm -rf "$PROJECT_PATH/games/*/*.aux"
-rm -rf "$PROJECT_PATH/games/*/*.log"
-rm -rf "$PROJECT_PATH/games/*/*.out"
-rm -rf "$PROJECT_PATH/games/*/*.tex"
-rm -rf "$PROJECT_PATH/games/*.aux"
-rm -rf "$PROJECT_PATH/games/*.log"
-rm -rf "$PROJECT_PATH/games/*.out"
-rm -rf "$PROJECT_PATH/games/*.tex"
-rm -rf "$PROJECT_PATH/*.aux"
-rm -rf "$PROJECT_PATH/*.log"
-rm -rf "$PROJECT_PATH/*.synctex.gz"
+echo $PROJECT_PATH
+
+pushd "$PROJECT_PATH/games"
+rm -rf */*.aux
+rm -rf */*.log
+rm -rf */*.out
+rm -rf */*.tex
+rm -rf *.aux
+rm -rf *.log
+rm -rf *.out
+rm -rf *.tex
+popd
+
+pushd "$PROJECT_PATH"
+rm -rf *.aux
+rm -rf *.log
+rm -rf *.synctex.gz
+popd
