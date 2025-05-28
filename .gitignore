@@ -5,6 +5,7 @@ games/*.tex
 *.synctex.gz
 data.txt
 latex_template_en.pdf
+latex_template.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
