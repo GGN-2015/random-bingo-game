@@ -8,12 +8,12 @@ os.chdir(dirnow)
 
 exe_path = os.path.join(dirnow, "try.out")
 data_file = os.path.join(dirnow, "data.txt")
-temp_file = os.path.join(dirnow, "latex_template.tex")
-temp_file_en = os.path.join(dirnow, "latex_template_en.tex")
+temp_file_zh = os.path.join(dirnow, "templates", "latex_template_zh.tex")
+temp_file_en = os.path.join(dirnow, "templates", "latex_template_en.tex")
 games_folder = os.path.join(dirnow, "games")
 
-run_bash_command(["bash", "compile.sh"], dirnow) # 保证 try.out 存在
-assert os.path.isfile(exe_path)
+if not os.path.isfile(exe_path): # 保证 try.out 存在
+    run_bash_command(["bash", "compile.sh"], dirnow)
 
 if not os.path.isfile(data_file):
     print("generating data.txt ...")
@@ -72,20 +72,26 @@ while sol_cnt != 1:
     print("- sol_cnt: %d" % sol_cnt)
 
 print(game_val)
-with open(temp_file, "r") as fp:
-    template = fp.read()
 
-for i in range(5):
-    for j in range(5):
-        token = "A_{%d,%d}" % (i+1, j+1)
-        assert template.find(token) != -1
-        template = template.replace(token, str(game_val[i][j]))
+for temp_file_now in [temp_file_en, temp_file_zh]:
+    print("processing %s" % temp_file_now)
+    with open(temp_file_now, "r") as fp:
+        template = fp.read()
 
-template = template.replace("random\\_seed", str(random_seed))
-template = template.replace("round\\_num", str(round_num))
+    for i in range(5):
+        for j in range(5):
+            token = "A_{%d,%d}" % (i+1, j+1)
+            assert template.find(token) != -1
+            template = template.replace(token, str(game_val[i][j]))
 
-with open("./games/%d.tex" % random_seed, "w") as fp:
-    fp.write(template)
+    template = template.replace("random\\_seed", str(random_seed))
+    template = template.replace("round\\_num", str(round_num))
+    lang = temp_file_now.split("_")[-1].split(".")[0] # 识别语言类型
 
-run_bash_command(["xelatex", str(random_seed)], games_folder)
+    with open(os.path.join(games_folder, lang, "%d.tex" % random_seed), "w") as fp:
+        fp.write(template)
+    run_bash_command(["xelatex", str(random_seed)], os.path.join(games_folder, lang))
+
+
+# 最后删除辅助文件
 run_bash_command(["bash", "clean.sh"], dirnow)

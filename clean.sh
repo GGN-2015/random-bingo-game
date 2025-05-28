@@ -1,4 +1,8 @@
 #!/bin/bash
+rm -rf ./games/*/*.aux
+rm -rf ./games/*/*.log
+rm -rf ./games/*/*.out
+rm -rf ./games/*/*.tex
 rm -rf ./games/*.aux
 rm -rf ./games/*.log
 rm -rf ./games/*.out
