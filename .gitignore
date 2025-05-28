@@ -6,6 +6,7 @@ games/*.tex
 data.txt
 latex_template_en.pdf
 latex_template.pdf
+temp_ans.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
