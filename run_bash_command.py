@@ -10,69 +10,115 @@ def run_bash_command(
     return_output: bool = False,
     raise_on_error: bool = True,
     shell: bool = False,
-    disp = False
+    disp: bool = False
 ) -> Optional[str]:
     """
-    在指定目录中执行Bash命令
+    Executes a Bash command in a specified directory with configurable options.
+    This function provides robust handling of command execution, directory management, 
+    environment variables, and error handling.
     
     Args:
-        command: 要执行的命令，可以是字符串或列表
-        directory: 执行命令的目录路径，默认为当前目录
-        env: 环境变量字典，默认为None（使用当前环境）
-        return_output: 是否返回命令输出，默认为False
-        raise_on_error: 命令执行失败时是否抛出异常，默认为True
-        shell: 是否通过shell执行命令，默认为False（直接执行）
-        disp: 是否打印命令输出到终端
-    
+        command (Union[str, List[str]]): 
+            The command to execute. Use a list for arguments (recommended for safety) or 
+            a string when `shell=True` (e.g., "command arg1 arg2").
+            
+        directory (Optional[Union[str, Path]]): 
+            The working directory where the command should run. Defaults to the current 
+            directory. Path can be a string or `Path` object.
+            
+        env (Optional[Dict[str, str]]): 
+            A dictionary of environment variables to set for the command. Merges with 
+            the current environment variables. Use `None` to inherit the parent environment.
+            
+        return_output (bool): 
+            If `True`, returns the command's standard output as a string. Otherwise, 
+            returns `None`.
+            
+        raise_on_error (bool): 
+            If `True`, raises a `subprocess.CalledProcessError` when the command exits 
+            with a non-zero status. If `False`, errors are logged but not raised.
+            
+        shell (bool): 
+            If `True`, executes the command through the shell (useful for pipes, globs, 
+            or shell-specific syntax). Use `False` (default) for direct execution 
+            (safer for untrusted input).
+            
+        disp (bool): 
+            If `True`, prints the command's output and errors to the terminal in real-time.
+            
     Returns:
-        命令的标准输出（如果return_output为True），否则返回None
-    
-    Exceptions:
-        subprocess.CalledProcessError: 命令执行失败且raise_on_error为True
+        Optional[str]: The command's standard output if `return_output=True`, otherwise `None`.
+        
+    Raises:
+        subprocess.CalledProcessError: When the command fails and `raise_on_error=True`.
+        OSError: For invalid directory paths or permission issues.
+        
+    Example Usage:
+        # Run "ls -l" in a specific directory and print output
+        run_bash_command(["ls", "-l"], directory="/usr/bin", disp=True)
+        
+        # Execute a shell script with custom environment variables
+        run_bash_command("./script.sh", env={"API_KEY": "secret"}, shell=True)
     """
-    # 保存当前工作目录，以便恢复
+    # Save the original working directory to ensure we revert back after execution
     original_dir = os.getcwd()
     
     try:
-        # 如果指定了目录，则切换到该目录
+        # Handle directory switching with error checking
         if directory:
-            os.chdir(directory)
+            # Convert Path objects to string for compatibility
+            directory_str = str(directory)
+            os.chdir(directory_str)  # May raise OSError for invalid paths
             if disp:
-                print(f"已切换到目录: {directory}")
+                print(f"Switched to directory: {directory_str}")
         
-        # 执行命令
-        if env is None:
-            env = dict()
-
+        # Prepare environment variables: merge user-provided env with system environment
+        merged_env = {**os.environ, **(env or {})}
+        
+        # Execute the command using subprocess.run for robust process management
         result = subprocess.run(
             command,
-            shell=shell,
-            env={**env, **os.environ},
-            capture_output=True,
-            text=True,
-            check=raise_on_error
+            shell=shell,              # Use shell for complex commands (risks injection)
+            env=merged_env,           # Inherit and override environment variables
+            stdout=subprocess.PIPE,   # Capture stdout for later processing
+            stderr=subprocess.PIPE,   # Capture stderr for error reporting
+            text=True,                # Return output as string (not bytes)
+            check=raise_on_error      # Raise exception on non-zero exit codes
         )
         
-        # 打印命令输出
+        # Print live output if requested
         if disp:
             if result.stdout:
-                print(f"命令输出:\n{result.stdout}")
-            if result.stderr and raise_on_error:
-                print(f"命令错误输出:\n{result.stderr}")
+                print(f"Command Output:\n{result.stdout}")
+            if result.stderr:
+                print(f"Command Error:\n{result.stderr}")
         
-        # 返回输出（如果需要）
+        # Return the captured output if the caller requested it
         return result.stdout if return_output else None
     
     except subprocess.CalledProcessError as e:
-        print(f"命令执行失败: {e}")
+        # Comprehensive error logging for failed commands
+        error_msg = (
+            f"Command failed with exit code {e.returncode}:\n"
+            f"Command: {' '.join(command) if isinstance(command, list) else command}\n"
+            f"Directory: {directory or original_dir}"
+        )
+        print(error_msg)
         if e.stdout:
-            print(f"标准输出:\n{e.stdout}")
+            print(f"Standard Output:\n{e.stdout}")
         if e.stderr:
-            print(f"错误输出:\n{e.stderr}")
-        raise  # 重新抛出异常，除非用户选择忽略错误
+            print(f"Standard Error:\n{e.stderr}")
+        # Re-raise the exception to allow upstream handling
+        if raise_on_error:
+            raise
+    
+    except OSError as e:
+        # Handle directory-related errors (e.g., permission denied)
+        print(f"Error accessing directory {directory}: {e}")
+        raise
+    
     finally:
-        # 恢复到原始工作目录
+        # Ensure we always return to the original working directory
         os.chdir(original_dir)
-
-        if directory and disp:
-            print(f"已恢复到原始目录: {original_dir}")
+        if disp:
+            print(f"Reverted to original directory: {original_dir}")
