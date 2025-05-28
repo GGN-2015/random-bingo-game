@@ -1,81 +1,15 @@
 import random
 import os
-import subprocess
-from pathlib import Path
-from typing import Optional, List, Dict, Union
+from run_bash_command import run_bash_command
+from execute_and_capture import execute_and_capture
+
 dirnow = os.path.dirname(os.path.abspath(__file__))
 os.chdir(dirnow)
 
 exe_path = os.path.join(dirnow, "try.out")
-
-def run_bash_command(
-    command: Union[str, List[str]],
-    directory: Optional[Union[str, Path]] = None,
-    env: Optional[Dict[str, str]] = None,
-    return_output: bool = False,
-    raise_on_error: bool = True,
-    shell: bool = False
-) -> Optional[str]:
-    """
-    在指定目录中执行Bash命令
-    
-    Args:
-        command: 要执行的命令，可以是字符串或列表
-        directory: 执行命令的目录路径，默认为当前目录
-        env: 环境变量字典，默认为None（使用当前环境）
-        return_output: 是否返回命令输出，默认为False
-        raise_on_error: 命令执行失败时是否抛出异常，默认为True
-        shell: 是否通过shell执行命令，默认为False（直接执行）
-    
-    Returns:
-        命令的标准输出（如果return_output为True），否则返回None
-    
-    Exceptions:
-        subprocess.CalledProcessError: 命令执行失败且raise_on_error为True
-    """
-    # 保存当前工作目录，以便恢复
-    original_dir = os.getcwd()
-    
-    try:
-        # 如果指定了目录，则切换到该目录
-        if directory:
-            os.chdir(directory)
-            print(f"已切换到目录: {directory}")
-        
-        # 执行命令
-        result = subprocess.run(
-            command,
-            shell=shell,
-            env=env or os.environ,
-            capture_output=True,
-            text=True,
-            check=raise_on_error
-        )
-        
-        # 打印命令输出
-        if result.stdout:
-            print(f"命令输出:\n{result.stdout}")
-        if result.stderr and raise_on_error:
-            print(f"命令错误输出:\n{result.stderr}")
-        
-        # 返回输出（如果需要）
-        return result.stdout if return_output else None
-    
-    except subprocess.CalledProcessError as e:
-        print(f"命令执行失败: {e}")
-        if e.stdout:
-            print(f"标准输出:\n{e.stdout}")
-        if e.stderr:
-            print(f"错误输出:\n{e.stderr}")
-        raise  # 重新抛出异常，除非用户选择忽略错误
-    finally:
-        # 恢复到原始工作目录
-        os.chdir(original_dir)
-        if directory:
-            print(f"已恢复到原始目录: {original_dir}")
-
 data_file = os.path.join(dirnow, "data.txt")
 temp_file = os.path.join(dirnow, "latex_template.tex")
+temp_file_en = os.path.join(dirnow, "latex_template_en.tex")
 games_folder = os.path.join(dirnow, "games")
 
 run_bash_command(["bash", "compile.sh"], dirnow) # 保证 try.out 存在
@@ -88,40 +22,6 @@ if not os.path.isfile(data_file):
 with open(data_file, "r") as fp:
     avai_inp = fp.read().split("==========\n")
     avai_inp = [x.strip() for x in avai_inp if x.strip() != ""]
-
-def execute_and_capture(executable_path, input_string) -> str:
-    """
-    将指定字符串传递给可执行程序并捕获其标准输出
-    
-    Args:
-        executable_path (str): 可执行程序的路径
-        input_string (str): 要传递给程序的字符串
-    
-    Returns:
-        str: 可执行程序的标准输出
-    """
-    try:
-        # 使用subprocess.run执行程序，传递输入并捕获输出
-        result = subprocess.run(
-            executable_path,
-            input=input_string.encode('utf-8'),  # 将字符串编码为字节
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=True  # 如果程序返回非零退出状态码，抛出CalledProcessError
-        )
-        
-        # 解码标准输出并返回
-        return result.stdout.decode('utf-8')
-    
-    except subprocess.CalledProcessError as e:
-        # 处理程序执行错误
-        print(f"程序执行失败，返回代码: {e.returncode}")
-        print(f"标准错误: {e.stderr.decode('utf-8')}")
-        return ""
-    except Exception as e:
-        # 处理其他异常
-        print(f"发生错误: {e}")
-        return ""
 
 max_siz = [
     [4, 6, 6, 6, 4],
