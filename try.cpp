@@ -234,7 +234,7 @@ int get_solution(int inp[5][5], bool disp=false) {
 }
 
 /**
- * Main function: Read input, solve puzzle, and output results
+ * Main function: Read input, solve puzzle, and output number of results
  */
 int main() {
     // Initialize data file
