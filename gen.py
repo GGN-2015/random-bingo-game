@@ -14,6 +14,7 @@ def main():
     output_pdf(game_val, random_seed, round_num)
 
     # 最后删除辅助文件
+    print("cleaning ...")
     run_bash_command(["bash", clean_sh], dirnow, env={"PROJECT_PATH": project_path})
 
 if __name__ == "__main__":
