@@ -82,7 +82,7 @@ for temp_file_now in [temp_file_en, temp_file_zh]:
         for j in range(5):
             token = "A_{%d,%d}" % (i+1, j+1)
             assert template.find(token) != -1
-            template = template.replace(token, "\textbf{" + str(game_val[i][j]) + "}")
+            template = template.replace(token, "\\textbf{" + str(game_val[i][j]) + "}")
 
     template = template.replace("random\\_seed", str(random_seed))
     template = template.replace("round\\_num", str(round_num))
