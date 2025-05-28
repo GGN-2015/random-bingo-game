@@ -3,8 +3,8 @@ from run_bash_command import run_bash_command
 
 dirnow = os.path.dirname(os.path.abspath(__file__))
 project_path = dirnow
-temp_file_zh = os.path.join(dirnow, "templates", "latex_template_zh.tex")
-temp_file_en = os.path.join(dirnow, "templates", "latex_template_en.tex")
+temp_file_zh = os.path.join(dirnow, "templates", "zh.tex")
+temp_file_en = os.path.join(dirnow, "templates", "en.tex")
 games_folder = os.path.join(dirnow, "games")
 
 def output_pdf(game_val:list, random_seed:int, round_num:int):
@@ -21,7 +21,7 @@ def output_pdf(game_val:list, random_seed:int, round_num:int):
 
         template = template.replace("random\\_seed", str(random_seed))
         template = template.replace("round\\_num", str(round_num))
-        lang = temp_file_now.split("_")[-1].split(".")[0] # 识别语言类型
+        lang = temp_file_now.split(".")[0] # 识别语言类型
 
         with open(os.path.join(games_folder, lang, "%d.tex" % random_seed), "w") as fp:
             fp.write(template)

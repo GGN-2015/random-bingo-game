@@ -2,10 +2,10 @@ import os
 from run_bash_command import run_bash_command
 from output_pdf import output_pdf
 from get_game_with_random_seed import get_game_with_random_seed
+dirnow = os.path.dirname(os.path.abspath(__file__))
+project_path = dirnow
 
 def main():
-    dirnow = os.path.dirname(os.path.abspath(__file__))
-    project_path = dirnow
     clean_sh = os.path.join(dirnow, "scripts", "clean.sh")
 
     random_seed = input("input_a_string >>> ").strip()
