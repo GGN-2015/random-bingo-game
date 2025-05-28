@@ -188,3 +188,4 @@ with open("./games/%d.tex" % random_seed, "w") as fp:
     fp.write(template)
 
 run_bash_command(["xelatex", str(random_seed)], games_folder)
+run_bash_command(["bash", "clean.sh"], dirnow)
