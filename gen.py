@@ -4,6 +4,10 @@ from run_bash_command import run_bash_command
 from execute_and_capture import execute_and_capture
 
 dirnow = os.path.dirname(os.path.abspath(__file__))
+project_path = dirnow
+env = {
+    "PROJECT_PATH": project_path
+}
 os.chdir(dirnow)
 
 exe_path = os.path.join(dirnow, "try.out")
@@ -12,12 +16,16 @@ temp_file_zh = os.path.join(dirnow, "templates", "latex_template_zh.tex")
 temp_file_en = os.path.join(dirnow, "templates", "latex_template_en.tex")
 games_folder = os.path.join(dirnow, "games")
 
+clean_sh = os.path.join(dirnow, "scripts", "clean.sh")
+compile_sh = os.path.join(dirnow, "scripts", "compile.sh")
+make_data_sh = os.path.join(dirnow, "scripts", "make_data.sh")
+
 if not os.path.isfile(exe_path): # 保证 try.out 存在
-    run_bash_command(["bash", "compile.sh"], dirnow)
+    run_bash_command(["bash", compile_sh], dirnow, env=env)
 
 if not os.path.isfile(data_file):
     print("generating data.txt ...")
-    run_bash_command(["bash", "make_data.sh"], dirnow)
+    run_bash_command(["bash", make_data_sh], dirnow, env=env)
 
 with open(data_file, "r") as fp:
     avai_inp = fp.read().split("==========\n")
@@ -90,8 +98,8 @@ for temp_file_now in [temp_file_en, temp_file_zh]:
 
     with open(os.path.join(games_folder, lang, "%d.tex" % random_seed), "w") as fp:
         fp.write(template)
-    run_bash_command(["xelatex", str(random_seed)], os.path.join(games_folder, lang))
+    run_bash_command(["xelatex", str(random_seed)], os.path.join(games_folder, lang), env=env)
 
 
 # 最后删除辅助文件
-run_bash_command(["bash", "clean.sh"], dirnow)
+run_bash_command(["bash", clean_sh], dirnow, env=env)

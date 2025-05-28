@@ -1,0 +1,12 @@
+#!/bin/bash
+rm -rf "$PROJECT_PATH/games/*/*.aux"
+rm -rf "$PROJECT_PATH/games/*/*.log"
+rm -rf "$PROJECT_PATH/games/*/*.out"
+rm -rf "$PROJECT_PATH/games/*/*.tex"
+rm -rf "$PROJECT_PATH/games/*.aux"
+rm -rf "$PROJECT_PATH/games/*.log"
+rm -rf "$PROJECT_PATH/games/*.out"
+rm -rf "$PROJECT_PATH/games/*.tex"
+rm -rf "$PROJECT_PATH/*.aux"
+rm -rf "$PROJECT_PATH/*.log"
+rm -rf "$PROJECT_PATH/*.synctex.gz"
