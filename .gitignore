@@ -1,3 +1,10 @@
+*.aux
+*.out
+*.log
+games/*.tex
+*.synctex.gz
+data.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
